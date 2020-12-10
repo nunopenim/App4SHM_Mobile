@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">App4SHM</string>
     <string name="button">Start Reading</string>
-    <string name="x">X</string>
-    <string name="y">Y</string>
-    <string name="z">Z</string>
+    <string name="header">    Time    |    X    |    Y    |    Z    </string>
+    <string name="values">    Time    |    X    |    Y    |    Z    </string>
 </resources>
