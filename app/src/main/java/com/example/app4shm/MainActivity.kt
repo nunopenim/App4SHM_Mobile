@@ -14,6 +14,7 @@ import android.widget.TextView
 var isReading = false
 var readings = arrayListOf<String>()
 var time = 0.0
+var startTime = System.currentTimeMillis();
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSensorManager: SensorManager
@@ -21,11 +22,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.content_main)
-        var button = findViewById(R.id.startMeasuring) as Button
+        val button = findViewById<Button>(R.id.startMeasuring)
         button.setOnClickListener {
             isReading = !isReading
             if (isReading) {
                 button.setText("Stop Measuring")
+                startTime = System.currentTimeMillis()
             }
             else {
                 time = 0.0
@@ -38,13 +40,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent) {
-        val values = findViewById<TextView>(R.id.values)
-        val x = event.values[0].toString()
-        val y = event.values[1].toString()
-        val z = event.values[2].toString()
-        var readout = "   $time    |    $x    |    $y    |    $z    \n"
         if (isReading) {
-            if (readings.size < 20) {
+            val values = findViewById<TextView>(R.id.values)
+            val x = String.format("%.2f", event.values[0])
+            val y = String.format("%.2f", event.values[1])
+            val z = String.format("%.2f", event.values[2])
+            val timestr = String.format("%.2f", time)
+            val readout = "time=$timestr s | x=$x (m/s^2) | y=$y (m/s^2) | z=$z (m/s^2)\n"
+            if (readings.size < 25) {
                 readings.add(readout)
             }
             else {
@@ -53,6 +56,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             val lstPrint = listStringificator(readings)
             values.setText(lstPrint)
+            time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
         }
     }
 
