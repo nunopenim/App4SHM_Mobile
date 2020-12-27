@@ -1,4 +1,4 @@
-package com.example.app4shm
+package org.app4shm.demo
 
 fun listStringificator(list: ArrayList<String>): String {
     var str = ""

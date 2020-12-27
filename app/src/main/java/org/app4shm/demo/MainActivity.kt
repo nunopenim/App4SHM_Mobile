@@ -1,4 +1,4 @@
-package com.example.app4shm
+package org.app4shm.demo
 
 import android.hardware.Sensor
 import android.hardware.SensorManager
