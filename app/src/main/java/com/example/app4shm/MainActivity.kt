@@ -14,7 +14,7 @@ import android.widget.TextView
 var isReading = false
 var readings = arrayListOf<String>()
 var time = 0.0
-var startTime = System.currentTimeMillis();
+var startTime = System.currentTimeMillis()
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSensorManager: SensorManager
