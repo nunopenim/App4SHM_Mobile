@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val lstPrint = listStringificator(readings)
             values.setText(lstPrint)
             time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
-            Thread.sleep(5)
+            Thread.sleep(20) //50 hz
         }
     }
 
