@@ -21,7 +21,6 @@ var isReading = false
 var readings = arrayListOf<String>()
 var time = 0.0
 var startTime = System.currentTimeMillis()
-
 var series1 = LineGraphSeries<DataPoint>();
 var series2 = LineGraphSeries<DataPoint>();
 var series3 = LineGraphSeries<DataPoint>();
@@ -56,16 +55,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         var graph: GraphView = findViewById(R.id.graph)
         if (isReading) {
-
-
             //val values = findViewById<TextView>(R.id.values)
             val x = String.format("%.2f", event.values[0])
             val y = String.format("%.2f", event.values[1])
             val z = String.format("%.2f", event.values[2])
-
-            val accsqr = x.toDouble() * x.toDouble() + y.toDouble() * y.toDouble() + z.toDouble() * z.toDouble()
-            val sclracc = sqrt(accsqr)
-
             val timestr = String.format("%.2f", time)
             val readout = "time=$timestr s | x=$x (m/s^2) | y=$y (m/s^2) | z=$z (m/s^2)\n"
             if (readings.size < 25) {
@@ -75,7 +68,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 readings.removeAt(0)
                 readings.add(readout)
             }
-            val lstPrint = listStringificator(readings)
+            //val lstPrint = listStringificator(readings)
             //values.setText(lstPrint)
             time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
 
@@ -83,7 +76,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             series2.appendData(DataPoint(time,y.toDouble()), true, 100)
             series3.appendData(DataPoint(time,z.toDouble()), true, 100)
 
-            series1.setThickness(8)
+            series1.setThickness(8) //Thicc series
             series2.setThickness(8)
             series3.setThickness(8)
             series2.setColor(Color.RED)
@@ -92,7 +85,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             graph.addSeries(series1)
             graph.addSeries(series2)
             graph.addSeries(series3)
-
 
             Thread.sleep(20) //50 hz
         }
