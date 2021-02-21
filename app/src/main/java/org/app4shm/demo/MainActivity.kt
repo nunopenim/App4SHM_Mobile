@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             series1.appendData(DataPoint(time,x.toDouble()), true, 100)
             series2.appendData(DataPoint(time,y.toDouble()), true, 100)
             series3.appendData(DataPoint(time,z.toDouble()), true, 100)
+
+            series1.setThickness(8)
+            series2.setThickness(8)
+            series3.setThickness(8)
             series2.setColor(Color.RED)
             series3.setColor(Color.GREEN)
 
