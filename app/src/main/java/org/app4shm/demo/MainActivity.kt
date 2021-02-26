@@ -1,4 +1,3 @@
-
 package org.app4shm.demo
 
 import android.hardware.Sensor
@@ -10,11 +9,9 @@ import android.content.Context
 import android.graphics.Color
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.widget.TextView
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import java.lang.Math.sqrt
 
 // Variaveis Globais
 var isReading = false
@@ -26,8 +23,12 @@ var series2 = LineGraphSeries<DataPoint>();
 var series3 = LineGraphSeries<DataPoint>();
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
+    // Sensor stuff
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
+
+    //This allows us to effectively create variable threadpools depending on the device
+    private val CORE_COUNT = Runtime.getRuntime().availableProcessors() //Not the same as physical CPU cores btw
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +61,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent) {
         var graph: GraphView = findViewById(R.id.graph)
+        //val values = findViewById<TextView>(R.id.values)
         if (isReading) {
-            //val values = findViewById<TextView>(R.id.values)
             val x = String.format("%.2f", event.values[0])
             val y = String.format("%.2f", event.values[1])
             val z = String.format("%.2f", event.values[2])
