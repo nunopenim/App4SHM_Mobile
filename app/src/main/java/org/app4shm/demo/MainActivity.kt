@@ -12,15 +12,22 @@ import android.hardware.SensorEventListener
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 
-// Variaveis Globais
+//eu sei que com variáveis globais, o código fica meio sujo, mas ainda não repensei de uma
+//maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
+
+//leituras
 var isReading = false
 var readings = arrayListOf<String>()
+
+//medições
 var time = 0.0
 var startTime = System.currentTimeMillis()
+
+//gráficos
 var series1 = LineGraphSeries<DataPoint>()
 var series2 = LineGraphSeries<DataPoint>()
 var series3 = LineGraphSeries<DataPoint>()
@@ -31,10 +38,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
 
-    val executor = Executors.newFixedThreadPool(2)
-
-    //This allows us to effectively create variable threadpools depending on the device
-    private val CORE_COUNT = Runtime.getRuntime().availableProcessors() //Not the same as physical CPU cores btw
+    private val executor: ExecutorService = Executors.newFixedThreadPool(4)
+    private var semaphore : Semaphore = Semaphore(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +53,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 startTime = System.currentTimeMillis()
             }
             else {
-
-                time = 0.0
                 button.setText("Start Measuring")
             }
         }
@@ -62,14 +65,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         series3.setThickness(8)
         series2.setColor(Color.RED)
         series3.setColor(Color.GREEN)
+        graph.addSeries(series1)
+        graph.addSeries(series2)
+        graph.addSeries(series3)
     }
 
     override fun onSensorChanged(event: SensorEvent) {
         //val values = findViewById<TextView>(R.id.values)
         if (isReading) {
-            val x = String.format("%.2f", event.values[0])
-            val y = String.format("%.2f", event.values[1])
-            val z = String.format("%.2f", event.values[2])
             time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
 
             //val timestr = String.format("%.2f", time)
@@ -85,20 +88,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             //values.setText(lstPrint)
 
             executor.execute {
-                try {
-                    series1.appendData(DataPoint(time, x.toDouble()), true, 10)
-                    series2.appendData(DataPoint(time, y.toDouble()), true, 10)
-                    series3.appendData(DataPoint(time, z.toDouble()), true, 10)
-                    graph.addSeries(series1)
-                    graph.addSeries(series2)
-                    graph.addSeries(series3)
-                }
-                catch (e : ConcurrentModificationException) {
-
-                }
+                semaphore.acquire()
+                series1.appendData(DataPoint(time, event.values[0].toDouble()), false, 50)
+                series2.appendData(DataPoint(time, event.values[1].toDouble()), false, 50)
+                series3.appendData(DataPoint(time, event.values[2].toDouble()), false, 50)
+                semaphore.release()
+                Thread.sleep(20) //50 hz
             }
-
-            Thread.sleep(20) //50 hz
         }
     }
 
