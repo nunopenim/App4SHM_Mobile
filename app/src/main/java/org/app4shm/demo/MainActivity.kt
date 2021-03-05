@@ -122,6 +122,40 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         //val values = findViewById<TextView>(R.id.values)
         if (isReading) {
             time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
+            graph.getViewport().setMinX(time-5)
+            graph.getViewport().setMaxX(time)
+            graph.getViewport().setXAxisBoundsManual(true)
+
+            val num1 = event.values[0].toDouble()
+            val num2 = event.values[1].toDouble()
+            val num3 = event.values[2].toDouble()
+            var max = 0.0
+            var min = 0.0
+
+            if(num1<=num2 && num1<=num3){
+                min = num1
+            }
+            else if(num2<=num1 && num2<=num3){
+                min = num2
+            }
+            else{
+                min = num3
+            }
+
+            if(num1>=num2 && num1>=num3){
+                max = num1
+            }
+            else if(num2>=num1 && num2>=num3){
+                max = num2
+            }
+            else{
+                max = num3
+            }
+            graph.getViewport().setMinY(min - 5)
+            graph.getViewport().setMaxY(max + 5)
+            graph.getViewport().setYAxisBoundsManual(true)
+
+
             //val timestr = String.format("%.2f", time)
             //val readout = "time=$timestr s | x=$x (m/s^2) | y=$y (m/s^2) | z=$z (m/s^2)\n"
             //if (readings.size < 25) {
