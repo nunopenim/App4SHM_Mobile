@@ -1,7 +1,6 @@
 package org.app4shm.demo
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -15,17 +14,29 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.app4shm.server.Data
-import com.google.android.gms.location.*
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import kotlin.properties.Delegates
 
+
 //eu sei que com variáveis globais, o código fica meio sujo, mas ainda não repensei de uma
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
+
+//Server shtuff
+val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
+var httpClient : OkHttpClient = OkHttpClient()
+val serverURL = "http://nunopenim.ddns.net/data/reading"
 
 //leituras
 var isReading = false
@@ -58,7 +69,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     //private lateinit var locationCallback: LocationCallback
     //lateinit var fusedLocationClient : FusedLocationProviderClient
     //var locationRequest = LocationRequest.create()
-    //private var semaphoreSend : Semaphore = Semaphore(1)
+    private var semaphoreSend : Semaphore = Semaphore(1)
+
+    fun sendData() {
+        val jsonText = makeMeAJson(readings)
+        readings = arrayListOf<Data>()
+        val body = RequestBody.create(JSON, jsonText)
+        val request: Request = Request.Builder().url(serverURL).post(body).build()
+        httpClient.newCall(request).execute()
+    }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
@@ -131,7 +150,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         sendData.setOnClickListener {
             if (readings.size != 0) {
                 sendData.text = "Sending data..."
-
+                executor.execute {
+                    semaphoreSend.acquire()
+                    sendData()
+                    semaphoreSend.release()
+                }
                 sendData.text = "Send Data!"
             }
         }
@@ -191,7 +214,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val z = event.values[2]
 
             val reading = Data(id, actualTime, x, y, z)
+            semaphoreSend.acquire()
             readings.add(reading)
+            semaphoreSend.release()
 
             val num1 = x.toDouble()
             val num2 = y.toDouble()
