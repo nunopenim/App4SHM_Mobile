@@ -8,8 +8,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
-import android.provider.Settings.Secure
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -48,7 +48,7 @@ var time = 0.0
 //lateinit var location : Location
 var offset : Long= 0
 var startTime = System.currentTimeMillis() + offset
-var id = ""
+var id = Build.DEVICE
 
 //gráficos
 var series1 = LineGraphSeries<DataPoint>()
@@ -105,9 +105,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         executor = Executors.newFixedThreadPool(thread_count)
 
-        // id, gps stuff, you name it!
-
-        id = Secure.getString(contentResolver, Secure.ANDROID_ID)
         //locationCallback = object : LocationCallback() {
         //    override fun onLocationResult(locationResult: LocationResult?) {
         //        locationResult ?: return
