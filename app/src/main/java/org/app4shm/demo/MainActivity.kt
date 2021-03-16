@@ -1,5 +1,6 @@
 package org.app4shm.demo
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.hardware.Sensor
@@ -72,8 +73,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var thread_count by Delegates.notNull<Int>()
     private lateinit var executor: ExecutorService
     private var semaphore : Semaphore = Semaphore(1)
-    private var semaphoreSend : Semaphore = Semaphore(1)
-    
+    //private var semaphoreSend : Semaphore = Semaphore(1)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Este bloco de código gera o número de threads dinamicamente
@@ -88,7 +89,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         executor = Executors.newFixedThreadPool(thread_count)
         // isto vai buscar o ID unico do dispositivo
-        id = Secure.getString(contentResolver, Secure.ANDROID_ID);
+        id = Secure.getString(contentResolver, Secure.ANDROID_ID)
 
         setContentView(R.layout.content_main)
         val button = findViewById<Button>(R.id.startMeasuring)
@@ -96,11 +97,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         button.setOnClickListener {
             isReading = !isReading
             if (isReading) {
-                button.setText("Stop Reading")
+                button.text = "Stop Reading"
                 startTime = System.currentTimeMillis()
             }
             else {
-                button.setText("Start Reading")
+                button.text = "Start Reading"
                 graph.removeAllSeries()
                 series1 = LineGraphSeries<DataPoint>()
                 series2 = LineGraphSeries<DataPoint>()
@@ -148,28 +149,22 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val num2 = y.toDouble()
             val num3 = z.toDouble()
 
-            var max = 0.0
-            var min = 0.0
-
-            if(num1<=num2 && num1<=num3){
-                min = num1
-            }
-            else if(num2<=num1 && num2<=num3){
-                min = num2
-            }
-            else{
-                min = num3
+            val min = if(num1<=num2 && num1<=num3){
+                num1
+            } else if(num2<=num1 && num2<=num3){
+                num2
+            } else{
+                num3
             }
 
-            if(num1>=num2 && num1>=num3){
-                max = num1
+            val max = if(num1>=num2 && num1>=num3){
+                num1
+            } else if(num2>=num1 && num2>=num3){
+                num2
+            } else{
+                num3
             }
-            else if(num2>=num1 && num2>=num3){
-                max = num2
-            }
-            else{
-                max = num3
-            }
+
             graph.getViewport().setMinY(min - 5)
             graph.getViewport().setMaxY(max + 5)
             graph.getViewport().setYAxisBoundsManual(true)
