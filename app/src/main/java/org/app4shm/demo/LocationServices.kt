@@ -9,8 +9,8 @@ class LocationServices : LocationListener {
         location = loc
         loc.getLatitude()
         loc.getLongitude()
-        latitude = loc.getLatitude()
-        longitude = loc.getLongitude()
+        latitude = loc.latitude
+        longitude = loc.longitude
     }
 
     override fun onProviderDisabled(provider: String) {}
