@@ -7,8 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings.Secure
 import android.widget.Button
@@ -17,11 +15,11 @@ import com.app4shm.server.Data
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import java.lang.System
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import kotlin.properties.Delegates
+
 
 //eu sei que com variáveis globais, o código fica meio sujo, mas ainda não repensei de uma
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
@@ -34,8 +32,7 @@ var readings = arrayListOf<Data>()
 var time = 0.0
 
 //GPS and ID stuff
-var location = Location(LocationManager.GPS_PROVIDER)
-var startTime = location.time
+var startTime = System.currentTimeMillis()
 var id = ""
 
 //gráficos
@@ -48,7 +45,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // Sensor stuff
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
-
     /* Ok Paulo, acho importante descrever as 4 linhas de código que estão à frente e o bloco de
      * código inicial no onCreate(), para evitar questões.
      *
@@ -75,6 +71,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var semaphore : Semaphore = Semaphore(1)
     //private var semaphoreSend : Semaphore = Semaphore(1)
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Este bloco de código gera o número de threads dinamicamente
@@ -88,9 +85,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             thread_count = 1
         }
         executor = Executors.newFixedThreadPool(thread_count)
-        // isto vai buscar o ID unico do dispositivo
+
+        // id, gps stuff, you name it!
         id = Secure.getString(contentResolver, Secure.ANDROID_ID)
 
+        //app itself
         setContentView(R.layout.content_main)
         val button = findViewById<Button>(R.id.startMeasuring)
         graph = findViewById(R.id.graph)
@@ -133,7 +132,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         //val values = findViewById<TextView>(R.id.values)
         if (isReading) {
-            time = (((location.time - startTime).toDouble())/1000)
+            val actualTime = System.currentTimeMillis()
+            time = (((actualTime - startTime).toDouble())/1000)
             graph.getViewport().setMinX(time-5)
             graph.getViewport().setMaxX(time)
             graph.getViewport().setXAxisBoundsManual(true)
@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val y = event.values[1]
             val z = event.values[2]
 
-            val reading = Data(id, location.time, x, y, z)
+            val reading = Data(id, actualTime, x, y, z)
             readings.add(reading)
 
             val num1 = x.toDouble()
@@ -183,9 +183,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             //values.setText(lstPrint)
             executor.execute {
                 semaphore.acquire() //I miss lpthreads.h and semaphores.h
-                series1.appendData(DataPoint(time, event.values[0].toDouble()), false, 100)
-                series2.appendData(DataPoint(time, event.values[1].toDouble()), false, 100)
-                series3.appendData(DataPoint(time, event.values[2].toDouble()), false, 100)
+                series1.appendData(DataPoint(time, num1), false, 100)
+                series2.appendData(DataPoint(time, num2), false, 100)
+                series3.appendData(DataPoint(time, num3), false, 100)
                 semaphore.release()
             }
             Thread.sleep(20) //50 hz
@@ -195,6 +195,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
 
-
 }
-
