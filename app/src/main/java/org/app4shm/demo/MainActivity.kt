@@ -1,18 +1,22 @@
 package org.app4shm.demo
 
-import android.annotation.SuppressLint
-import android.hardware.Sensor
-import android.hardware.SensorManager
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.Button
 import android.content.Context
 import android.graphics.Color
+import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.location.Location
+import android.location.LocationManager
+import android.os.Bundle
+import android.provider.Settings.Secure
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.app4shm.server.Data
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import java.lang.System
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
@@ -23,11 +27,15 @@ import kotlin.properties.Delegates
 
 //leituras
 var isReading = false
-//var readings = arrayListOf<String>()
+var readings = arrayListOf<Data>()
 
 //medições
 var time = 0.0
-var startTime = System.currentTimeMillis()
+
+//GPS and ID stuff
+var location = Location(LocationManager.GPS_PROVIDER)
+var startTime = location.time
+var id = ""
 
 //gráficos
 var series1 = LineGraphSeries<DataPoint>()
@@ -64,6 +72,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var thread_count by Delegates.notNull<Int>()
     private lateinit var executor: ExecutorService
     private var semaphore : Semaphore = Semaphore(1)
+    private var semaphoreSend : Semaphore = Semaphore(1)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +87,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             thread_count = 1
         }
         executor = Executors.newFixedThreadPool(thread_count)
+        // isto vai buscar o ID unico do dispositivo
+        id = Secure.getString(contentResolver, Secure.ANDROID_ID);
 
         setContentView(R.layout.content_main)
         val button = findViewById<Button>(R.id.startMeasuring)
@@ -121,14 +132,22 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         //val values = findViewById<TextView>(R.id.values)
         if (isReading) {
-            time = (((System.currentTimeMillis() - startTime).toDouble())/1000)
+            time = (((location.time - startTime).toDouble())/1000)
             graph.getViewport().setMinX(time-5)
             graph.getViewport().setMaxX(time)
             graph.getViewport().setXAxisBoundsManual(true)
 
-            val num1 = event.values[0].toDouble()
-            val num2 = event.values[1].toDouble()
-            val num3 = event.values[2].toDouble()
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+
+            val reading = Data(id, location.time, x, y, z)
+            readings.add(reading)
+
+            val num1 = x.toDouble()
+            val num2 = y.toDouble()
+            val num3 = z.toDouble()
+
             var max = 0.0
             var min = 0.0
 
@@ -180,5 +199,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
+
+
 }
 
