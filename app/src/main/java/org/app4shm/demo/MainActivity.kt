@@ -104,6 +104,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         setContentView(R.layout.content_main)
         val button = findViewById<Button>(R.id.startMeasuring)
+        val sendData = findViewById<Button>(R.id.sendData)
         graph = findViewById(R.id.graph)
         button.setOnClickListener {
             isReading = !isReading
@@ -125,6 +126,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 graph.addSeries(series1)
                 graph.addSeries(series2)
                 graph.addSeries(series3)
+            }
+        }
+        sendData.setOnClickListener {
+            if (readings.size != 0) {
+                sendData.text = "Sending data..."
+
+                sendData.text = "Send Data!"
             }
         }
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
