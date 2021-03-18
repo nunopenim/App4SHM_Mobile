@@ -58,9 +58,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // Sensor stuff
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
-    private var executor = Executors.newFixedThreadPool(1)
-    private var senderThread = Executors.newFixedThreadPool(1)
+    private var executor = Executors.newFixedThreadPool(3)
+    private var senderThread = Executors.newFixedThreadPool(2)
     private var semaphoreSend : Semaphore = Semaphore(1)
+    private var semaphoreDraw : Semaphore = Semaphore(1)
 
     fun sendData() {
         val jsonText = makeMeAJson(readings)
@@ -133,15 +134,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             //offsetUpdater()
             val actualTime = System.currentTimeMillis()
             time = (((actualTime - startTime).toDouble())/1000)
-            graph.getViewport().setMinX(time-5)
-            graph.getViewport().setMaxX(time)
-            graph.getViewport().setXAxisBoundsManual(true)
 
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
 
-            executor.run {
+            senderThread.execute {
                 val reading = Data(id, actualTime, x, y, z)
                 semaphoreSend.acquire()
                 readings.add(reading)
@@ -167,14 +165,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             } else{
                 num3
             }
-
-            graph.getViewport().setMinY(min - 5)
-            graph.getViewport().setMaxY(max + 5)
-            graph.getViewport().setYAxisBoundsManual(true)
-
-            series1.appendData(DataPoint(time, num1), false, 100)
-            series2.appendData(DataPoint(time, num2), false, 100)
-            series3.appendData(DataPoint(time, num3), false, 100)
+            executor.execute{
+                graph.getViewport().setMinX(time-5)
+                graph.getViewport().setMaxX(time)
+                graph.getViewport().setXAxisBoundsManual(true)
+                graph.getViewport().setMinY(min - 5)
+                graph.getViewport().setMaxY(max + 5)
+                graph.getViewport().setYAxisBoundsManual(true)
+                series1.appendData(DataPoint(time, num1), false, 100)
+                series2.appendData(DataPoint(time, num2), false, 100)
+                series3.appendData(DataPoint(time, num3), false, 100)
+            }
 
             Thread.sleep(20) //50 hz
         }
