@@ -1,8 +1,7 @@
 package org.app4shm.demo
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -12,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.app4shm.server.Data
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
@@ -63,10 +61,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors()
     private var thread_count by Delegates.notNull<Int>()
     private lateinit var executor: ExecutorService
+    private var senderThread = Executors.newFixedThreadPool(1)
     private var semaphore : Semaphore = Semaphore(1)
-    //private lateinit var locationCallback: LocationCallback
-    //lateinit var fusedLocationClient : FusedLocationProviderClient
-    //var locationRequest = LocationRequest.create()
     private var semaphoreSend : Semaphore = Semaphore(1)
 
     fun sendData() {
@@ -80,20 +76,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
 
-    //@SuppressLint("MissingPermission")
-    //private fun startLocationUpdates() {
-    //    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    //}
-
-    //override fun onResume() {
-    //    super.onResume()
-    //    startLocationUpdates()
-    //}
-
-    fun init() {
-
-        // Este bloco de código gera o número de threads dinamicamente
-        //location = locateMe()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (NUMBER_OF_CORES > 4) {
             thread_count = 4
         }
@@ -104,19 +88,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             thread_count = 1
         }
         executor = Executors.newFixedThreadPool(thread_count)
-
-        //locationCallback = object : LocationCallback() {
-        //    override fun onLocationResult(locationResult: LocationResult?) {
-        //        locationResult ?: return
-        //        location = locationResult.lastLocation
-        //    }
-        //}
-        //locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
-        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        //app itself
-
         setContentView(R.layout.content_main)
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT; //rotation
         val button = findViewById<Button>(R.id.startMeasuring)
         val sendData = findViewById<Button>(R.id.sendData)
         graph = findViewById(R.id.graph)
@@ -145,7 +118,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         sendData.setOnClickListener {
             if (readings.size != 0) {
                 sendData.text = "Sending data..."
-                executor.execute {
+                senderThread.execute {
                     semaphoreSend.acquire()
                     sendData()
                     semaphoreSend.release()
@@ -165,34 +138,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         graph.addSeries(series1)
         graph.addSeries(series2)
         graph.addSeries(series3)
-
-    }
-
-    //fun offsetUpdater () {
-    //    if (offset > 100) {
-    //        startLocationUpdates()
-    //    }
-    //    offset = location.time - System.currentTimeMillis()
-    //    locationCallback = object : LocationCallback() {
-    //        override fun onLocationResult(locationResult: LocationResult?) {
-    //            locationResult ?: return
-    //            location = locationResult.lastLocation
-    //        }
-    //    }
-    //}
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        init()
-        //Permissions
-        //if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        //    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1111)
-
-            // Still needs work permission-wise!
-        //}
-        //else {
-
-        //}
     }
 
     override fun onSensorChanged(event: SensorEvent) {
@@ -238,18 +183,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             graph.getViewport().setMaxY(max + 5)
             graph.getViewport().setYAxisBoundsManual(true)
 
-
-            //val timestr = String.format("%.2f", time)
-            //val readout = "time=$timestr s | x=$x (m/s^2) | y=$y (m/s^2) | z=$z (m/s^2)\n"
-            //if (readings.size < 25) {
-            //    readings.add(readout)
-            //}
-            //else {
-            //    readings.removeAt(0)
-            //    readings.add(readout)
-            //}
-            //val lstPrint = listStringificator(readings)
-            //values.setText(lstPrint)
             executor.execute {
                 semaphore.acquire() //I miss lpthreads.h and semaphores.h
                 series1.appendData(DataPoint(time, num1), false, 100)
@@ -260,31 +193,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             Thread.sleep(20) //50 hz
         }
     }
-
-    //@SuppressLint("MissingPermission")
-    //fun locateMe() : Location {
-    //    var gps_enabled = false
-    //    var network_enabled = false
-    //    val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    //    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    //    network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    //    var net_loc: Location? = null
-    //    var gps_loc: Location? = null
-    //    var finalLoc: Location? = null
-    //    if (gps_enabled) gps_loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-    //    if (network_enabled) net_loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-    //    if (gps_loc != null && net_loc != null) {
-    //        //smaller the number more accurate result will
-    //        finalLoc = if (gps_loc.accuracy > net_loc.accuracy) net_loc else gps_loc
-
-            // I used this just to get an idea (if both avail, its upto you which you want to take as I've taken location with more accuracy)
-    //    } else {
-    //        if (gps_loc != null) {
-    //            finalLoc = gps_loc
-    //        } else if (net_loc != null) {
-    //            finalLoc = net_loc
-    //        }
-    //    }
-    //    return finalLoc!!
-    //}
 }
