@@ -58,11 +58,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // Sensor stuff
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
-    private val NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors()
-    private var thread_count by Delegates.notNull<Int>()
-    private lateinit var executor: ExecutorService
+    private var executor = Executors.newFixedThreadPool(1)
     private var senderThread = Executors.newFixedThreadPool(1)
-    private var semaphore : Semaphore = Semaphore(1)
     private var semaphoreSend : Semaphore = Semaphore(1)
 
     fun sendData() {
@@ -78,16 +75,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (NUMBER_OF_CORES > 4) {
-            thread_count = 4
-        }
-        else if (NUMBER_OF_CORES > 1){
-            thread_count = NUMBER_OF_CORES - 1
-        }
-        else {
-            thread_count = 1
-        }
-        executor = Executors.newFixedThreadPool(thread_count)
         setContentView(R.layout.content_main)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT; //rotation
         val button = findViewById<Button>(R.id.startMeasuring)
@@ -154,10 +141,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val y = event.values[1]
             val z = event.values[2]
 
-            val reading = Data(id, actualTime, x, y, z)
-            semaphoreSend.acquire()
-            readings.add(reading)
-            semaphoreSend.release()
+            executor.run {
+                val reading = Data(id, actualTime, x, y, z)
+                semaphoreSend.acquire()
+                readings.add(reading)
+                semaphoreSend.release()
+            }
 
             val num1 = x.toDouble()
             val num2 = y.toDouble()
@@ -183,13 +172,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             graph.getViewport().setMaxY(max + 5)
             graph.getViewport().setYAxisBoundsManual(true)
 
-            executor.execute {
-                semaphore.acquire() //I miss lpthreads.h and semaphores.h
-                series1.appendData(DataPoint(time, num1), false, 100)
-                series2.appendData(DataPoint(time, num2), false, 100)
-                series3.appendData(DataPoint(time, num3), false, 100)
-                semaphore.release()
-            }
+            series1.appendData(DataPoint(time, num1), false, 100)
+            series2.appendData(DataPoint(time, num2), false, 100)
+            series3.appendData(DataPoint(time, num3), false, 100)
+
             Thread.sleep(20) //50 hz
         }
     }
