@@ -31,7 +31,7 @@ import java.util.concurrent.Semaphore
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 var httpClient : OkHttpClient = OkHttpClient()
-val serverURL = "http://nunopenim.ddns.net/data/reading"
+val serverURL = "http://<DNS Removed>/data/reading"
 
 //leituras
 var isReading = false
@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 readings.add(reading)
                 semaphoreSend.release()
             }
-
+            
             val num1 = x.toDouble()
             val num2 = y.toDouble()
             val num3 = z.toDouble()
