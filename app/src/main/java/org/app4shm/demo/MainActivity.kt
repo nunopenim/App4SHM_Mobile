@@ -53,6 +53,8 @@ var series2 = LineGraphSeries<DataPoint>()
 var series3 = LineGraphSeries<DataPoint>()
 lateinit var graph: GraphView
 
+const val SAMPLING_PERIOD = 20 // ms
+
 class MainActivity : AppCompatActivity(), SensorEventListener {
     // Sensor stuff
     private lateinit var mSensorManager: SensorManager
@@ -61,6 +63,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var senderThread = Executors.newFixedThreadPool(2)
     private var semaphoreSend : Semaphore = Semaphore(1)
     private var semaphoreDraw : Semaphore = Semaphore(1)
+
+
+
+    var count = 0
+
 
     fun sendData() {
         val jsonText = makeMeAJson(readings)
@@ -80,13 +87,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val button = findViewById<Button>(R.id.startMeasuring)
         val sendData = findViewById<Button>(R.id.sendData)
         graph = findViewById(R.id.graph)
+
+        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
         button.setOnClickListener {
             isReading = !isReading
             if (isReading) {
                 button.text = "Stop Reading"
                 startTime = System.currentTimeMillis()
+                count = 0
+
+                graph.getViewport().setMinX(0.0)
+                graph.getViewport().setMaxX(50.0)
+                graph.getViewport().setXAxisBoundsManual(true);
+
+                mSensorManager.registerListener(this, mAccelerometer, SAMPLING_PERIOD * 1000)
             }
             else {
+
+                mSensorManager.unregisterListener(this, mAccelerometer)
+
                 button.text = "Start Reading"
                 graph.removeAllSeries()
                 series1 = LineGraphSeries<DataPoint>()
@@ -114,9 +135,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
-        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+
 
         //Precisa de semáfero, comentado para não causar transtorno
         // comentar o de cima e descomentar o de baixo quando tiver semáfero
@@ -146,62 +165,67 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        mSensorManager.unregisterListener(this, mAccelerometer)
+        isReading = false
+    }
+
     override fun onSensorChanged(event: SensorEvent) {
         //val values = findViewById<TextView>(R.id.values)
-        if (isReading) {
+//        if (isReading) {
             //offsetUpdater()
             val actualTime = System.currentTimeMillis()
-            Log.i("App", actualTime.toString())
+            // Log.i("App", actualTime.toString())
             time = (((actualTime - startTime).toDouble())/1000)
 
-            val x = event.values[0]
-            val y = event.values[1]
-            val z = event.values[2]
-
-            senderThread.execute {
-                val reading = Data(id, actualTime, x, y, z)
-                semaphoreSend.acquire()
-                readings.add(reading)
-                semaphoreSend.release()
-            }
-            
-            val num1 = x.toDouble()
-            val num2 = y.toDouble()
-            val num3 = z.toDouble()
-
-            val min = if(num1<=num2 && num1<=num3){
-                num1
-            } else if(num2<=num1 && num2<=num3){
-                num2
-            } else{
-                num3
-            }
-
-            val max = if(num1>=num2 && num1>=num3){
-                num1
-            } else if(num2>=num1 && num2>=num3){
-                num2
-            } else{
-                num3
-            }
-
-            executor.execute{
-                graph.getViewport().setMinX(time - 5)
-                graph.getViewport().setMaxX(time)
-                graph.getViewport().setXAxisBoundsManual(true)
-                graph.getViewport().setMinY(min - 5)
-                graph.getViewport().setMaxY(max + 5)
-                graph.getViewport().setYAxisBoundsManual(true)
-                series1.appendData(DataPoint(time, num1), false, 100)
-                series2.appendData(DataPoint(time, num2), false, 100)
-                series3.appendData(DataPoint(time, num3), false, 100)
-            }
-
-
-            if(20 - (System.currentTimeMillis() - actualTime) > 0) {
-                Thread.sleep(20 - (System.currentTimeMillis() - actualTime)) //50 hz
-            }
+        count++
+        if (count % 20 == 0) {
+            Log.i("App", "Average sampling time: " + (((actualTime - startTime).toDouble()) / count) + " ms")
         }
+
+        val x = event.values[0]
+        val y = event.values[1]
+        val z = event.values[2]
+
+        val reading = Data(id, actualTime, x, y, z)
+        readings.add(reading)
+
+        val num1 = x.toDouble()
+        val num2 = y.toDouble()
+        val num3 = z.toDouble()
+
+        val min = if(num1<=num2 && num1<=num3){
+            num1
+        } else if(num2<=num1 && num2<=num3){
+            num2
+        } else{
+            num3
+        }
+
+        val max = if(num1>=num2 && num1>=num3){
+            num1
+        } else if(num2>=num1 && num2>=num3){
+            num2
+        } else{
+            num3
+        }
+
+//        graph.getViewport().setMinX(time - 5)
+//        graph.getViewport().setMaxX(time)
+//        graph.getViewport().setXAxisBoundsManual(true)
+//        graph.getViewport().setMinY(min - 5)
+//        graph.getViewport().setMaxY(max + 5)
+//        graph.getViewport().setYAxisBoundsManual(true)
+
+        // atualiza o gráfico a cada 100 ms
+        if (count % (100 / SAMPLING_PERIOD) == 0) {
+            series1.appendData(DataPoint(count.toDouble(), num1), true, 100)
+            series2.appendData(DataPoint(count.toDouble(), num2), true, 100)
+            series3.appendData(DataPoint(count.toDouble(), num3), true, 100)
+        }
+
+
     }
 }
 
