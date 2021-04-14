@@ -35,7 +35,7 @@ import java.util.concurrent.Semaphore
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 var httpClient: OkHttpClient = OkHttpClient()
-val serverURL = "http://<DNS Removed>/data/reading"
+val serverURL = "http://95.94.8.193/data/reading"
 
 //leituras
 var isReading = false
@@ -196,7 +196,11 @@ class HomeFragment : Fragment(), SensorEventListener {
         val z = event.values[2]
 
         val reading = Data(device_id, actualTime, x, y, z)
-        readings.add(reading)
+        senderThread.execute {
+            semaphoreSend.acquire()
+            readings.add(reading)
+            semaphoreSend.release()
+        }
 
         val num1 = x.toDouble()
         val num2 = y.toDouble()
