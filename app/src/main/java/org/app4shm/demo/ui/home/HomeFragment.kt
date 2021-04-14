@@ -25,6 +25,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import org.app4shm.demo.Data
+import org.app4shm.demo.InfoSingleton
 import org.app4shm.demo.makeMeAJson
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
@@ -33,9 +34,9 @@ import java.util.concurrent.Semaphore
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
 
 //Singleton stuff
-var group = "TG"
-var device_id = Build.DEVICE
-val serverURL = "http://95.94.8.193/data/reading"
+var group = InfoSingleton.group
+var device_id = InfoSingleton.username
+val serverURL = "http://${InfoSingleton.IP}/data/reading"
 
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
