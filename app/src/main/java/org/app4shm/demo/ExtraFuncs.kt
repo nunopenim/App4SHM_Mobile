@@ -1,7 +1,5 @@
 package org.app4shm.demo
 
-import com.app4shm.server.Data
-
 fun listStringificator(list: ArrayList<String>): String {
     var str = ""
     for (i in list) {

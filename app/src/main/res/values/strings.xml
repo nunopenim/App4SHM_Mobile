@@ -1,6 +1,31 @@
 <resources>
     <string name="app_name">App4SHM</string>
-    <string name="button">Start Reading</string>
-    <string name="header">    Time    |    X    |    Y    |    Z    </string>
-    <string name="values">    Time    |    X    |    Y    |    Z    </string>
+    <string name="title_home">Data Aquisition</string>
+    <string name="title_risk_analysis">Risk Analysis</string>
+    <string name="title_damage_detection">Damage Detection</string>
+    <string name="title_debug">Debug</string>
+
+    <string name="messages_header">Messages</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_group">Group</string>
+    <string name="settings_IP">IP</string>
+
+    <string name="reply_title">Default reply action</string>
+    <string name="title_activity_settings2">SettingsActivity2</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Home -->
+    <string name="buttonMeasure">Start Measuring</string>
+    <string name="buttonMeasureStop">Stop Measuring</string>
+    <string name="sendData">Send Data</string>
+    <string name="sending">Sending...</string>
+
 </resources>
