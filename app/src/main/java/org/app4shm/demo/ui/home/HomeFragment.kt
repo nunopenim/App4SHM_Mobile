@@ -34,9 +34,9 @@ import java.util.concurrent.Semaphore
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
 
 //Singleton stuff
-var group = InfoSingleton.group
-var device_id = InfoSingleton.username
-val serverURL = "http://${InfoSingleton.IP}/data/reading"
+//var group = InfoSingleton.group
+//var device_id = InfoSingleton.username
+//val serverURL = "http://${InfoSingleton.IP}/data/reading"
 
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
@@ -79,7 +79,7 @@ class HomeFragment : Fragment(), SensorEventListener {
         val jsonText = makeMeAJson(readings)
         readings = arrayListOf<Data>()
         val body = RequestBody.create(JSON, jsonText)
-        val request: Request = Request.Builder().url(serverURL).post(body).build()
+        val request: Request = Request.Builder().url("http://${InfoSingleton.IP}/data/reading").post(body).build()
         httpClient.newCall(request).execute()
     }
 
@@ -199,7 +199,7 @@ class HomeFragment : Fragment(), SensorEventListener {
         val y = event.values[1]
         val z = event.values[2]
 
-        val reading = Data(device_id, actualTime, x, y, z, group)
+        val reading = Data(InfoSingleton.username, actualTime, x, y, z, InfoSingleton.group)
         senderThread.execute {
             semaphoreSend.acquire()
             readings.add(reading)
