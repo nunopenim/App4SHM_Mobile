@@ -102,6 +102,7 @@ class HomeFragment : Fragment(), SensorEventListener {
         button.setOnClickListener {
             isReading = !isReading
             if (isReading) {
+                readings = arrayListOf<Data>()
                 button.text = "Stop Reading"
                 startTime = System.currentTimeMillis()
 
