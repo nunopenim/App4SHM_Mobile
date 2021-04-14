@@ -222,6 +222,8 @@ class HomeFragment : Fragment(), SensorEventListener {
             series1.appendData(DataPoint(count.toDouble(), num1), true, 100)
             series2.appendData(DataPoint(count.toDouble(), num2), true, 100)
             series3.appendData(DataPoint(count.toDouble(), num3), true, 100)
+            graph.getViewport().setMinY(min - 2)
+            graph.getViewport().setMaxY(max + 2)
         }
 
         /*executor.execute {
