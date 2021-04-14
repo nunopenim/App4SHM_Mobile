@@ -1,4 +1,4 @@
-package org.app4shm.demo.ui.damage_detection
+package org.app4shm.demo.ui.debug
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

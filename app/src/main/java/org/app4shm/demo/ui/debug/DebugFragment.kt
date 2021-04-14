@@ -1,4 +1,4 @@
-package org.app4shm.demo.ui.damage_detection
+package org.app4shm.demo.ui.debug
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.app4shm.demo.R
+import org.app4shm.demo.ui.debug.DebugViewModel
 
 class DamageDetectionFragment : Fragment() {
 

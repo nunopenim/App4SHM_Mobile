@@ -19,12 +19,12 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="org.app4shm.demo.ui.damage_detection.DebugFragment"
+        android:name="org.app4shm.demo.ui.debug.DebugFragment"
         android:label="@string/title_damage_detection"
         tools:layout="@layout/fragment_notifications" />
     <fragment
         android:id="@+id/navigation_debug"
-        android:name="org.app4shm.demo.ui.damage_detection.DebugFragment"
+        android:name="org.app4shm.demo.ui.debug.DebugFragment"
         android:label="@string/title_debug"
         tools:layout="@layout/fragment_debug" />
 </navigation>
