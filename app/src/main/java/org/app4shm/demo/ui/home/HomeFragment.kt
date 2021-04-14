@@ -32,10 +32,14 @@ import java.util.concurrent.Semaphore
 //eu sei que com variáveis globais, o código fica meio sujo, mas ainda não repensei de uma
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
 
+//Singleton stuff
+var group = "TG"
+var device_id = Build.DEVICE
+val serverURL = "http://95.94.8.193/data/reading"
+
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 var httpClient: OkHttpClient = OkHttpClient()
-val serverURL = "http://95.94.8.193/data/reading"
 
 //leituras
 var isReading = false
@@ -49,7 +53,6 @@ var time = 0.0
 //lateinit var location : Location
 var offset: Long = 0
 var startTime = System.currentTimeMillis() + offset
-var device_id = Build.DEVICE
 
 //gráficos
 var series1 = LineGraphSeries<DataPoint>()
@@ -195,7 +198,7 @@ class HomeFragment : Fragment(), SensorEventListener {
         val y = event.values[1]
         val z = event.values[2]
 
-        val reading = Data(device_id, actualTime, x, y, z)
+        val reading = Data(device_id, actualTime, x, y, z, group)
         senderThread.execute {
             semaphoreSend.acquire()
             readings.add(reading)
