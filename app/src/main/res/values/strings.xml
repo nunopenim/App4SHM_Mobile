@@ -10,7 +10,11 @@
     <string name="settings_group">Group</string>
     <string name="settings_IP">IP</string>
 
+    <string name="form_button_save">Save</string>
+
     <string name="no_auto_time">Your device\'s Auto-time is currently off!</string>
+    <string name="changes_saved">Saved!</string>
+    <string name="sent_data">Sent Data!</string>
 
     <!-- Sync Preferences -->
     <string name="title_activity_settings">Settings</string>

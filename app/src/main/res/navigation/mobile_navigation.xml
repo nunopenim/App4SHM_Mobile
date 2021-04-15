@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="org.app4shm.demo.ui.debug.DebugFragment"
+        android:name="org.app4shm.demo.ui.damage_detection.DamageDetectionFragment"
         android:label="@string/title_damage_detection"
         tools:layout="@layout/fragment_notifications" />
     <fragment

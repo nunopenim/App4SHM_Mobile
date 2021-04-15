@@ -12,20 +12,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import org.app4shm.demo.R
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import org.app4shm.demo.Data
-import org.app4shm.demo.InfoSingleton
-import org.app4shm.demo.makeMeAJson
+import org.app4shm.demo.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 
@@ -140,6 +138,8 @@ class HomeFragment : Fragment(), SensorEventListener {
                     sendData()
                     semaphoreSend.release()
                 }
+                Toast.makeText(activity, getString(R.string.sent_data), Toast.LENGTH_SHORT)
+                    .show()
                 sendData.text = "Send Data!"
             }
         }
