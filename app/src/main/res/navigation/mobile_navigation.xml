@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/navigation_debug"
         android:name="org.app4shm.demo.ui.debug.DebugFragment"
-        android:label="@string/title_debug"
+        android:label="@string/title_groups"
         tools:layout="@layout/fragment_debug" />
 
     <fragment

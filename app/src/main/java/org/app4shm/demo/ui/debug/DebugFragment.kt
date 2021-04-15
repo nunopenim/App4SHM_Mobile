@@ -30,10 +30,10 @@ class DebugFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_debug, container, false)
 
         val buttonSave: Button = root.findViewById(R.id.buttonSave)
-
+        val group: TextView = root.findViewById(R.id.groupText)
+        group.text = InfoSingleton.group
         buttonSave.setOnClickListener {
 
-            val group: TextView = root.findViewById(R.id.groupText)
             InfoSingleton.changeGroup(group.text.toString())
 
 

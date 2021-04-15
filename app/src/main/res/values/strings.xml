@@ -4,8 +4,10 @@
     <string name="title_risk_analysis">Risk Analysis</string>
     <string name="title_damage_detection">Damage Detection</string>
     <string name="title_debug">Debug</string>
+    <string name="title_groups">Change Groups</string>
 
-    <string name="settings_header">Connection Parameters</string>
+    <string name="settings_connection">Connection Parameters</string>
+    <string name="settings_auth">Authentication Parameters</string>
     <string name="settings_name">Name</string>
     <string name="settings_group">Group</string>
     <string name="settings_IP">IP</string>

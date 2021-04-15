@@ -25,13 +25,10 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.settings, rootKey)
             val name = findPreference<EditTextPreference>("Name")
-            val group = findPreference<EditTextPreference>("Group")
             val ip = findPreference<EditTextPreference>("IP")
             name!!.text = InfoSingleton.username
-            group!!.text = InfoSingleton.group
             ip!!.text = InfoSingleton.IP
             name.setOnPreferenceChangeListener { preference, newValue -> InfoSingleton.changeName(newValue as String)}
-            group.setOnPreferenceChangeListener { preference, newValue -> InfoSingleton.changeGroup(newValue as String)}
             ip.setOnPreferenceChangeListener { preference, newValue -> InfoSingleton.changeIP(newValue as String)}
         }
     }
