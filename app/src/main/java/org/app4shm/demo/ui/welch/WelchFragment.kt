@@ -8,10 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.DataPointInterface
-import com.jjoe64.graphview.series.LineGraphSeries
-import com.jjoe64.graphview.series.PointsGraphSeries
+import com.jjoe64.graphview.series.*
 import org.app4shm.demo.Data
 import org.app4shm.demo.R
 
@@ -33,8 +30,6 @@ class WelchFragment : Fragment() {
         series = LineGraphSeries<DataPoint>(getDataPoint())
         graph.addSeries(series)
 
-
-
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.isYAxisBoundsManual = true
 
@@ -48,21 +43,29 @@ class WelchFragment : Fragment() {
         graph.viewport.isScalable = true
         //graph.viewport.setScrollableY(true)
 
-        series.setOnDataPointTapListener { series, dataPoint -> onTap(dataPoint) }
+        series.setOnDataPointTapListener { series, dataPoint -> onTap(series, dataPoint) }
 
         return root
     }
 
-    fun onTap(dataPointInterface: DataPointInterface) {
+    fun onTap(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
         var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
         graph.removeAllSeries()
+
         selected = PointsGraphSeries<DataPoint>()
-        selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y),false,1)
-        graph.addSeries(selected)
+        selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y), false, 1)
         selected.color = Color.RED
-        selected.size = 10.0F
+        selected.setCustomShape { canvas, paint, x, y, dataPoint ->
+            run {
+                paint.setStrokeWidth(5F)
+                canvas.drawLine(x - 20, y, x, y - 20, paint)
+                canvas.drawLine(x, y - 20, x + 20, y, paint)
+                canvas.drawLine(x + 20, y, x, y + 20, paint)
+                canvas.drawLine(x - 20, y, x, y + 20, paint)
+            }
+        }
 
-
+        graph.addSeries(selected)
         graph.addSeries(series)
 
 
