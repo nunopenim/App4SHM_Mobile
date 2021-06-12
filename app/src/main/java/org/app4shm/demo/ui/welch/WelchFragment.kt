@@ -1,20 +1,25 @@
 package org.app4shm.demo.ui.welch
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.DataPointInterface
 import com.jjoe64.graphview.series.LineGraphSeries
+import com.jjoe64.graphview.series.PointsGraphSeries
 import org.app4shm.demo.Data
 import org.app4shm.demo.R
 
 lateinit var graph: GraphView
 var readings = arrayListOf<Data>()
 var series = LineGraphSeries<DataPoint>()
+var selected = PointsGraphSeries<DataPoint>()
+
 
 class WelchFragment : Fragment() {
 
@@ -28,6 +33,8 @@ class WelchFragment : Fragment() {
         series = LineGraphSeries<DataPoint>(getDataPoint())
         graph.addSeries(series)
 
+
+
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.isYAxisBoundsManual = true
 
@@ -38,9 +45,28 @@ class WelchFragment : Fragment() {
         //graph.viewport.setScalable(true)
         //graph.viewport.setScalableY(true)
         graph.viewport.isScrollable = true
+        graph.viewport.isScalable = true
         //graph.viewport.setScrollableY(true)
 
+        series.setOnDataPointTapListener { series, dataPoint -> onTap(dataPoint) }
+
         return root
+    }
+
+    fun onTap(dataPointInterface: DataPointInterface) {
+        var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
+        graph.removeAllSeries()
+        selected = PointsGraphSeries<DataPoint>()
+        selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y),false,1)
+        graph.addSeries(selected)
+        selected.color = Color.RED
+        selected.size = 10.0F
+
+
+        graph.addSeries(series)
+
+
+        Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
     }
 
     fun getDataPoint(): Array<DataPoint> {
@@ -59,6 +85,8 @@ class WelchFragment : Fragment() {
         return list
 
     }
+
+
 }
 
 /*
