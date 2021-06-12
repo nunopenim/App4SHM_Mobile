@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.DataPointInterface
 import com.jjoe64.graphview.series.LineGraphSeries
 import org.app4shm.demo.Data
 import org.app4shm.demo.R
@@ -18,17 +19,45 @@ var series = LineGraphSeries<DataPoint>()
 class WelchFragment : Fragment() {
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
-        org.app4shm.demo.ui.home.graph = root.findViewById(R.id.graph_welch)
-
+        graph = root.findViewById(R.id.graph_welch)
+        series = LineGraphSeries<DataPoint>(getDataPoint())
         graph.addSeries(series)
 
+        graph.viewport.isXAxisBoundsManual = true
+        graph.viewport.isYAxisBoundsManual = true
+
+        graph.viewport.setMinX(3.0)
+        graph.viewport.setMaxX(6.0)
+
+        //graph.addSeries(series)
+        //graph.viewport.setScalable(true)
+        //graph.viewport.setScalableY(true)
+        graph.viewport.isScrollable = true
+        //graph.viewport.setScrollableY(true)
+
         return root
+    }
+
+    fun getDataPoint(): Array<DataPoint> {
+
+        var a = DataPoint(0.0, 1.0)
+        var b = DataPoint(1.0, 11.0)
+        var c = DataPoint(2.0, 5.0)
+        var a1 = DataPoint(3.0, 8.0)
+        var b1 = DataPoint(4.0, 5.0)
+        var c1 = DataPoint(5.0, 11.0)
+        var a2 = DataPoint(6.0, 9.0)
+        var b2 = DataPoint(7.0, 13.0)
+        var c2 = DataPoint(9.0, 9.0)
+
+        var list = arrayOf<DataPoint>(a, b, c, a1, b1, c1, a2, b2, c2)
+        return list
+
     }
 }
 
