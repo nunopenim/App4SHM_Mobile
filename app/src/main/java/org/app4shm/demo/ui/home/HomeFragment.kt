@@ -77,7 +77,7 @@ class HomeFragment : Fragment(), SensorEventListener {
         readings = arrayListOf<Data>()
         val body = RequestBody.create(JSON, jsonText)
         val request: Request = Request.Builder().url("http://${InfoSingleton.IP}/data/reading").post(body).build()
-        httpClient.newCall(request).execute()
+        InfoSingleton.response = httpClient.newCall(request).execute()
     }
 
     private lateinit var homeViewModel: HomeViewModel
