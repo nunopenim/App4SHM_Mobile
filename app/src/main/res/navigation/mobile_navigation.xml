@@ -5,11 +5,19 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
 
+
+
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="org.app4shm.demo.ui.risk_analysis.RiskAnalysisFragment"
-        android:label="@string/title_risk_analysis"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_debug"
+        android:name="org.app4shm.demo.ui.debug.DebugFragment"
+        android:label="@string/title_groups"
+        tools:layout="@layout/fragment_debug" />
+
+    <fragment
+        android:id="@+id/navigation_welch"
+        android:name="org.app4shm.demo.ui.welch.WelchFragment"
+        android:label="@string/title_groups"
+        tools:layout="@layout/fragment_welch" />
 
     <fragment
         android:id="@+id/navigation_home"
@@ -19,10 +27,10 @@
 
 
     <fragment
-        android:id="@+id/navigation_debug"
-        android:name="org.app4shm.demo.ui.debug.DebugFragment"
-        android:label="@string/title_groups"
-        tools:layout="@layout/fragment_debug" />
+        android:id="@+id/navigation_dashboard"
+        android:name="org.app4shm.demo.ui.risk_analysis.RiskAnalysisFragment"
+        android:label="@string/title_risk_analysis"
+        tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_notifications"
