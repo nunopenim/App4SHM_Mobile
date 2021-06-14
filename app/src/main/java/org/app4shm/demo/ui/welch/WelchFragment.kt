@@ -48,9 +48,9 @@ class WelchFragment : Fragment() {
             seriesz.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)), true, InfoSingleton.welchF.size)
         }
 
-        graph.addSeries(seriesx)
         graph.addSeries(seriesy)
         graph.addSeries(seriesz)
+        graph.addSeries(seriesx)
         graph.viewport.setScalable(true)
         graph.viewport.setScalableY(true)
         graph.viewport.isScrollable = true
@@ -80,9 +80,10 @@ class WelchFragment : Fragment() {
         }
 
         graph.addSeries(selected)
+
+            graph.addSeries(seriesy)
+            graph.addSeries(seriesz)
         graph.addSeries(seriesx)
-        graph.addSeries(seriesy)
-        graph.addSeries(seriesz)
 
 
         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
