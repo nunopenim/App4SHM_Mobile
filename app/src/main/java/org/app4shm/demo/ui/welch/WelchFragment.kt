@@ -10,11 +10,14 @@ import android.widget.Toast
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.*
 import org.app4shm.demo.Data
+import org.app4shm.demo.InfoSingleton
 import org.app4shm.demo.R
 
 lateinit var graph: GraphView
 var readings = arrayListOf<Data>()
-var series = LineGraphSeries<DataPoint>()
+var seriesx = LineGraphSeries<DataPoint>()
+var seriesy = LineGraphSeries<DataPoint>()
+var seriesz = LineGraphSeries<DataPoint>()
 var selected = PointsGraphSeries<DataPoint>()
 
 
@@ -27,23 +30,34 @@ class WelchFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
         graph = root.findViewById(R.id.graph_welch)
-        series = LineGraphSeries<DataPoint>(getDataPoint())
-        graph.addSeries(series)
+        seriesx = LineGraphSeries<DataPoint>()
+        seriesy = LineGraphSeries<DataPoint>()
+        seriesz = LineGraphSeries<DataPoint>()
 
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.isYAxisBoundsManual = true
 
-        graph.viewport.setMinX(3.0)
-        graph.viewport.setMaxX(6.0)
+        graph.viewport.setMinX(0.0)
+        graph.viewport.setMaxX(InfoSingleton.welchF.size.toDouble())
+        graph.viewport.setMaxY(60.0)
+        graph.viewport.setMinY(0.0)
 
-        //graph.addSeries(series)
-        //graph.viewport.setScalable(true)
-        //graph.viewport.setScalableY(true)
+        for (i in InfoSingleton.welchF.indices) {
+            seriesx.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchX.get(i)), true, InfoSingleton.welchF.size)
+            seriesy.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchY.get(i)), true, InfoSingleton.welchF.size)
+            seriesz.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)), true, InfoSingleton.welchF.size)
+        }
+
+        graph.addSeries(seriesx)
+        graph.addSeries(seriesy)
+        graph.addSeries(seriesz)
+        graph.viewport.setScalable(true)
+        graph.viewport.setScalableY(true)
         graph.viewport.isScrollable = true
         graph.viewport.isScalable = true
-        //graph.viewport.setScrollableY(true)
+        graph.viewport.setScrollableY(true)
 
-        series.setOnDataPointTapListener { series, dataPoint -> onTap(series, dataPoint) }
+        seriesx.setOnDataPointTapListener { series, dataPoint -> onTap(series, dataPoint) }
 
         return root
     }
@@ -66,7 +80,9 @@ class WelchFragment : Fragment() {
         }
 
         graph.addSeries(selected)
-        graph.addSeries(series)
+        graph.addSeries(seriesx)
+        graph.addSeries(seriesy)
+        graph.addSeries(seriesz)
 
 
         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
