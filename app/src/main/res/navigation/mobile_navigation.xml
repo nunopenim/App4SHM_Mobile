@@ -16,7 +16,7 @@
     <fragment
         android:id="@+id/navigation_welch"
         android:name="org.app4shm.demo.ui.welch.WelchFragment"
-        android:label="@string/title_groups"
+        android:label="@string/title_welch"
         tools:layout="@layout/fragment_welch" />
 
     <fragment
