@@ -27,6 +27,10 @@ import org.app4shm.demo.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 
+// X é azul
+// Y é vermelho
+// Z é verde
+
 //eu sei que com variáveis globais, o código fica meio sujo, mas ainda não repensei de uma
 //maneira melhor de fazer, temos de pensar nisso depois, para já não há bugs, mas de futuro...
 
