@@ -52,6 +52,9 @@ class WelchFragment : Fragment() {
             seriesz.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)), true, InfoSingleton.welchF.size)
         }
 
+
+        seriesy.color = Color.RED
+        seriesz.color = Color.GREEN
         graph.addSeries(seriesy)
         graph.addSeries(seriesz)
         graph.addSeries(seriesx)
@@ -85,8 +88,11 @@ class WelchFragment : Fragment() {
 
         graph.addSeries(selected)
 
-            graph.addSeries(seriesy)
-            graph.addSeries(seriesz)
+        seriesy.color = Color.RED
+        seriesz.color = Color.GREEN
+
+        graph.addSeries(seriesy)
+        graph.addSeries(seriesz)
         graph.addSeries(seriesx)
 
 
