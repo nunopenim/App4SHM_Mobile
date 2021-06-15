@@ -13,6 +13,10 @@ import org.app4shm.demo.Data
 import org.app4shm.demo.InfoSingleton
 import org.app4shm.demo.R
 
+// X é azul
+// Y é vermelho
+// Z é verde
+
 lateinit var graph: GraphView
 var readings = arrayListOf<Data>()
 var seriesx = LineGraphSeries<DataPoint>()
