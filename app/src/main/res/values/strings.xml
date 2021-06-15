@@ -5,7 +5,7 @@
     <string name="title_damage_detection">Damage Detection</string>
     <string name="title_debug">Debug</string>
     <string name="title_groups">Change Group</string>
-    <string name="title_welch">Frequency Analisis</string>
+    <string name="title_welch">Frequency Analysis</string>
 
     <string name="settings_connection">Connection Parameters</string>
     <string name="settings_auth">Authentication Parameters</string>

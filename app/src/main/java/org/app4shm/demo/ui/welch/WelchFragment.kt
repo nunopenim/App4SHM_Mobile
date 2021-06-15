@@ -1,8 +1,6 @@
 package org.app4shm.demo.ui.welch
 
-import android.annotation.SuppressLint
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +44,6 @@ class WelchFragment : Fragment() {
     lateinit var greenDraw : CheckBox
 
 
-    @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -244,41 +241,3 @@ class WelchFragment : Fragment() {
         }
     }
 }
-
-
-
-/*
- button.setOnClickListener {
-            isReading = !isReading
-            if (isReading) {
-                readings = arrayListOf<Data>()
-                button.text = "Stop Reading"
-                startTime = System.currentTimeMillis()
-
-                count = 0
-
-                graph.getViewport().setMinX(0.0)
-                graph.getViewport().setMaxX(50.0)
-                graph.getViewport().setXAxisBoundsManual(true);
-
-                mSensorManager.registerListener(this, mAccelerometer, SAMPLING_PERIOD * 1000)
-            } else {
-
-                mSensorManager.unregisterListener(this, mAccelerometer)
-
-                button.text = "Start Reading"
-                graph.removeAllSeries()
-                series1 = LineGraphSeries<DataPoint>()
-                series2 = LineGraphSeries<DataPoint>()
-                series3 = LineGraphSeries<DataPoint>()
-                series1.setThickness(8)
-                series2.setThickness(8)
-                series3.setThickness(8)
-                series2.setColor(Color.RED)
-                series3.setColor(Color.GREEN)
-                graph.addSeries(series1)
-                graph.addSeries(series2)
-                graph.addSeries(series3)
-            }
-        }
-*/
