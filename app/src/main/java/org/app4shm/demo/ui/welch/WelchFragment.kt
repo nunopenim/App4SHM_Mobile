@@ -1,42 +1,117 @@
 package org.app4shm.demo.ui.welch
 
+import android.annotation.SuppressLint
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.RadioButton
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.*
 import org.app4shm.demo.Data
 import org.app4shm.demo.InfoSingleton
 import org.app4shm.demo.R
 
+
 // X é azul
 // Y é vermelho
 // Z é verde
-
+//O que está a ser selecionado precisa de ser desenhado por cima dos outros gráficos todos ou seja adicionado ao GraphView em último
 lateinit var graph: GraphView
 var readings = arrayListOf<Data>()
 var seriesx = LineGraphSeries<DataPoint>()
 var seriesy = LineGraphSeries<DataPoint>()
 var seriesz = LineGraphSeries<DataPoint>()
 var selected = PointsGraphSeries<DataPoint>()
+var selectBar = LineGraphSeries<DataPoint>()
+
+var redFirst = false
+var blueFirst = true
+var greenFirst = false
 
 
 class WelchFragment : Fragment() {
 
+    lateinit var redTap : RadioButton
+    lateinit var blueTap : RadioButton
+    lateinit var greenTap : RadioButton
 
+    lateinit var redDraw : CheckBox
+    lateinit var blueDraw : CheckBox
+    lateinit var greenDraw : CheckBox
+
+
+    @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
+
+        redTap = root.findViewById(R.id.redTap)
+        blueTap = root.findViewById(R.id.blueTap)
+        greenTap = root.findViewById(R.id.greenTap)
+
+        redDraw = root.findViewById(R.id.redDraw)
+        blueDraw = root.findViewById(R.id.blueDraw)
+        greenDraw = root.findViewById(R.id.greenDraw)
+
+        redTap.setOnClickListener{
+            redFirst = true
+            blueFirst = false
+            greenFirst = false
+            graph.removeAllSeries()
+            reDraw()
+            seriesx.setOnDataPointTapListener(null);
+            seriesz.setOnDataPointTapListener(null);
+            seriesy.setOnDataPointTapListener { series, dataPoint -> onTapy(series, dataPoint) }
+        }
+        blueTap.setOnClickListener{
+            redFirst = false
+            blueFirst = true
+            greenFirst = false
+            graph.removeAllSeries()
+            reDraw()
+            seriesy.setOnDataPointTapListener(null);
+            seriesz.setOnDataPointTapListener(null);
+            seriesx.setOnDataPointTapListener { series, dataPoint -> onTapx(series, dataPoint) }
+        }
+        greenTap.setOnClickListener{
+            redFirst = false
+            blueFirst = false
+            greenFirst = true
+            graph.removeAllSeries()
+            reDraw()
+            seriesy.setOnDataPointTapListener(null);
+            seriesx.setOnDataPointTapListener(null);
+            seriesz.setOnDataPointTapListener { series, dataPoint -> onTapz(series, dataPoint) }
+        }
+        redDraw.setOnClickListener{
+            graph.removeAllSeries()
+            reDraw()
+        }
+        blueDraw.setOnClickListener{
+            graph.removeAllSeries()
+            reDraw()
+        }
+        greenDraw.setOnClickListener{
+            graph.removeAllSeries()
+            reDraw()
+        }
+
         graph = root.findViewById(R.id.graph_welch)
         seriesx = LineGraphSeries<DataPoint>()
         seriesy = LineGraphSeries<DataPoint>()
         seriesz = LineGraphSeries<DataPoint>()
+        var a = DataPoint(0.0, 60.0)
+        var b = DataPoint(.0, 0.0)
+        selectBar.appendData(a,true,2)
+        selectBar.appendData(b,true,2)
 
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.isYAxisBoundsManual = true
@@ -52,6 +127,12 @@ class WelchFragment : Fragment() {
             seriesz.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)), true, InfoSingleton.welchF.size)
         }
 
+        seriesx.setDrawDataPoints(true);
+        seriesx.setDataPointsRadius(10F);
+        seriesy.setDrawDataPoints(true);
+        seriesy.setDataPointsRadius(10F);
+        seriesz.setDrawDataPoints(true);
+        seriesz.setDataPointsRadius(10F);
 
         seriesy.color = Color.RED
         seriesz.color = Color.GREEN
@@ -64,36 +145,28 @@ class WelchFragment : Fragment() {
         graph.viewport.isScalable = true
         graph.viewport.setScrollableY(true)
 
-        seriesx.setOnDataPointTapListener { series, dataPoint -> onTap(series, dataPoint) }
 
         return root
     }
 
-    fun onTap(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
+    fun onTapx(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
         var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
-        graph.removeAllSeries()
+        onTapCommonBranch(dataPointInterface)
+        reDraw()
 
-        selected = PointsGraphSeries<DataPoint>()
-        selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y), false, 1)
-        selected.color = Color.RED
-        selected.setCustomShape { canvas, paint, x, y, dataPoint ->
-            run {
-                paint.setStrokeWidth(5F)
-                canvas.drawLine(x - 20, y, x, y - 20, paint)
-                canvas.drawLine(x, y - 20, x + 20, y, paint)
-                canvas.drawLine(x + 20, y, x, y + 20, paint)
-                canvas.drawLine(x - 20, y, x, y + 20, paint)
-            }
-        }
+        Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
+    }
+    fun onTapy(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
+        var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
+        onTapCommonBranch(dataPointInterface)
+        reDraw()
 
-        graph.addSeries(selected)
-
-        seriesy.color = Color.RED
-        seriesz.color = Color.GREEN
-
-        graph.addSeries(seriesy)
-        graph.addSeries(seriesz)
-        graph.addSeries(seriesx)
+        Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
+    }
+    fun onTapz(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
+        var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
+        onTapCommonBranch(dataPointInterface)
+        reDraw()
 
 
         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
@@ -116,8 +189,63 @@ class WelchFragment : Fragment() {
 
     }
 
+    private fun onTapCommonBranch(dataPointInterface: DataPointInterface){
+        graph.removeAllSeries()
+        selected = PointsGraphSeries<DataPoint>()
+        selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y), false, 1)
+        selected.color = Color.RED
+        selected.setCustomShape { canvas, paint, x, y, dataPoint ->
+            run {
+                paint.setStrokeWidth(5F)
+                canvas.drawLine(x - 20, y, x, y - 20, paint)
+                canvas.drawLine(x, y - 20, x + 20, y, paint)
+                canvas.drawLine(x + 20, y, x, y + 20, paint)
+                canvas.drawLine(x - 20, y, x, y + 20, paint)
+            }
+        }
 
+        graph.addSeries(selected)
+
+        seriesy.color = Color.RED
+        seriesz.color = Color.GREEN
+    }
+
+    fun reDraw(){
+        if(blueFirst) {
+            if (redDraw.isChecked) {
+                graph.addSeries(seriesy)
+            }
+            if (greenDraw.isChecked) {
+                graph.addSeries(seriesz)
+            }
+            if (blueDraw.isChecked) {
+                graph.addSeries(seriesx)
+            }
+        }else if(redFirst) {
+            if (greenDraw.isChecked) {
+                graph.addSeries(seriesz)
+            }
+            if (blueDraw.isChecked) {
+                graph.addSeries(seriesx)
+            }
+            if (redDraw.isChecked) {
+                graph.addSeries(seriesy)
+            }
+        }else if(greenFirst) {
+            if (redDraw.isChecked) {
+                graph.addSeries(seriesy)
+            }
+            if (blueDraw.isChecked) {
+                graph.addSeries(seriesx)
+            }
+            if (greenDraw.isChecked) {
+                graph.addSeries(seriesz)
+            }
+        }
+    }
 }
+
+
 
 /*
  button.setOnClickListener {
