@@ -28,25 +28,25 @@
             android:text="Draw:" />
 
         <CheckBox
-            android:id="@+id/redDraw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="🟥" />
-
-        <CheckBox
             android:id="@+id/blueDraw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="🟦" />
+            android:text="X" />
+
+        <CheckBox
+            android:id="@+id/redDraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Y" />
 
         <CheckBox
             android:id="@+id/greenDraw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="🟩" />
+            android:text="Z" />
     </LinearLayout>
 
     <RadioGroup
@@ -69,22 +69,22 @@
             android:text="Tap:" />
 
         <RadioButton
-            android:id="@+id/redTap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🟥" />
-
-        <RadioButton
             android:id="@+id/blueTap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🟦" />
+            android:text="X" />
+
+        <RadioButton
+            android:id="@+id/redTap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y" />
 
         <RadioButton
             android:id="@+id/greenTap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🟩" />
+            android:text="Z" />
     </RadioGroup>
 
 
