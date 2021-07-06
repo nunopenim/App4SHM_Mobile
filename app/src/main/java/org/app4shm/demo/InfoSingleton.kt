@@ -8,7 +8,8 @@ import okhttp3.Response
 object InfoSingleton {
     var group = "testgroup"
     var username = "unknown"
-    var IP = "192.168.50.5"
+    var IP = "192.168.50.5" //nuno
+    //var IP = "192.168.1.193:8080" // paulo
 
     var response: Response? = null
 

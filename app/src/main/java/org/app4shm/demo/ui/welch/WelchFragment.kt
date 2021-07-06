@@ -25,9 +25,11 @@ var readings = arrayListOf<Data>()
 var seriesx = LineGraphSeries<DataPoint>()
 var seriesy = LineGraphSeries<DataPoint>()
 var seriesz = LineGraphSeries<DataPoint>()
-var selected = PointsGraphSeries<DataPoint>()
 var selectBar = LineGraphSeries<DataPoint>()
-
+var storedSelected = mutableMapOf<Double, Double>()
+var mapX = mutableMapOf<Double,Double>()
+var mapY = mutableMapOf<Double,Double>()
+var mapZ = mutableMapOf<Double,Double>()
 var redFirst = false
 var blueFirst = true
 var greenFirst = false
@@ -35,13 +37,13 @@ var greenFirst = false
 
 class WelchFragment : Fragment() {
 
-    lateinit var redTap : RadioButton
-    lateinit var blueTap : RadioButton
-    lateinit var greenTap : RadioButton
+    lateinit var redTap: RadioButton
+    lateinit var blueTap: RadioButton
+    lateinit var greenTap: RadioButton
 
-    lateinit var redDraw : CheckBox
-    lateinit var blueDraw : CheckBox
-    lateinit var greenDraw : CheckBox
+    lateinit var redDraw: CheckBox
+    lateinit var blueDraw: CheckBox
+    lateinit var greenDraw: CheckBox
 
 
     override fun onCreateView(
@@ -58,7 +60,7 @@ class WelchFragment : Fragment() {
         blueDraw = root.findViewById(R.id.blueDraw)
         greenDraw = root.findViewById(R.id.greenDraw)
 
-        redTap.setOnClickListener{
+        redTap.setOnClickListener {
             redFirst = true
             blueFirst = false
             greenFirst = false
@@ -68,7 +70,7 @@ class WelchFragment : Fragment() {
             seriesz.setOnDataPointTapListener(null);
             seriesy.setOnDataPointTapListener { series, dataPoint -> onTapy(series, dataPoint) }
         }
-        blueTap.setOnClickListener{
+        blueTap.setOnClickListener {
             redFirst = false
             blueFirst = true
             greenFirst = false
@@ -78,7 +80,7 @@ class WelchFragment : Fragment() {
             seriesz.setOnDataPointTapListener(null);
             seriesx.setOnDataPointTapListener { series, dataPoint -> onTapx(series, dataPoint) }
         }
-        greenTap.setOnClickListener{
+        greenTap.setOnClickListener {
             redFirst = false
             blueFirst = false
             greenFirst = true
@@ -88,15 +90,15 @@ class WelchFragment : Fragment() {
             seriesx.setOnDataPointTapListener(null);
             seriesz.setOnDataPointTapListener { series, dataPoint -> onTapz(series, dataPoint) }
         }
-        redDraw.setOnClickListener{
+        redDraw.setOnClickListener {
             graph.removeAllSeries()
             reDraw()
         }
-        blueDraw.setOnClickListener{
+        blueDraw.setOnClickListener {
             graph.removeAllSeries()
             reDraw()
         }
-        greenDraw.setOnClickListener{
+        greenDraw.setOnClickListener {
             graph.removeAllSeries()
             reDraw()
         }
@@ -107,8 +109,8 @@ class WelchFragment : Fragment() {
         seriesz = LineGraphSeries<DataPoint>()
         var a = DataPoint(0.0, 60.0)
         var b = DataPoint(.0, 0.0)
-        selectBar.appendData(a,true,2)
-        selectBar.appendData(b,true,2)
+        selectBar.appendData(a, true, 2)
+        selectBar.appendData(b, true, 2)
 
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.isYAxisBoundsManual = true
@@ -119,9 +121,24 @@ class WelchFragment : Fragment() {
         graph.viewport.setMinY(0.0)
 
         for (i in InfoSingleton.welchF.indices) {
-            seriesx.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchX.get(i)), true, InfoSingleton.welchF.size)
-            seriesy.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchY.get(i)), true, InfoSingleton.welchF.size)
-            seriesz.appendData(DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)), true, InfoSingleton.welchF.size)
+            mapX.put(InfoSingleton.welchF.get(i),InfoSingleton.welchX.get(i))
+            mapY.put(InfoSingleton.welchF.get(i),InfoSingleton.welchY.get(i))
+            mapZ.put(InfoSingleton.welchF.get(i),InfoSingleton.welchZ.get(i))
+            seriesx.appendData(
+                DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchX.get(i)),
+                true,
+                InfoSingleton.welchF.size
+            )
+            seriesy.appendData(
+                DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchY.get(i)),
+                true,
+                InfoSingleton.welchF.size
+            )
+            seriesz.appendData(
+                DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i)),
+                true,
+                InfoSingleton.welchF.size
+            )
         }
 
         seriesx.setDrawDataPoints(true);
@@ -153,6 +170,7 @@ class WelchFragment : Fragment() {
 
         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
     }
+
     fun onTapy(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
         var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
         onTapCommonBranch(dataPointInterface)
@@ -160,6 +178,7 @@ class WelchFragment : Fragment() {
 
         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
     }
+
     fun onTapz(ser: Series<DataPointInterface>, dataPointInterface: DataPointInterface) {
         var msg = "X:" + dataPointInterface.x + "\nY:" + dataPointInterface.y
         onTapCommonBranch(dataPointInterface)
@@ -186,8 +205,9 @@ class WelchFragment : Fragment() {
 
     }
 
-    private fun onTapCommonBranch(dataPointInterface: DataPointInterface){
+    private fun onTapCommonBranch(dataPointInterface: DataPointInterface) {
         graph.removeAllSeries()
+        /*
         selected = PointsGraphSeries<DataPoint>()
         selected.appendData(DataPoint(dataPointInterface.x, dataPointInterface.y), false, 1)
         selected.color = Color.RED
@@ -199,16 +219,22 @@ class WelchFragment : Fragment() {
                 canvas.drawLine(x + 20, y, x, y + 20, paint)
                 canvas.drawLine(x - 20, y, x, y + 20, paint)
             }
+        }*/
+        if (storedSelected.containsKey(dataPointInterface.x)) {
+            storedSelected.remove(dataPointInterface.x)
+        } else {
+            storedSelected.put(dataPointInterface.x, dataPointInterface.y)
         }
 
-        graph.addSeries(selected)
+        //graph.addSeries(selected)
 
         seriesy.color = Color.RED
         seriesz.color = Color.GREEN
     }
 
-    fun reDraw(){
-        if(blueFirst) {
+    fun reDraw() {
+        drawAllSelected()
+        if (blueFirst) {
             if (redDraw.isChecked) {
                 graph.addSeries(seriesy)
             }
@@ -218,7 +244,7 @@ class WelchFragment : Fragment() {
             if (blueDraw.isChecked) {
                 graph.addSeries(seriesx)
             }
-        }else if(redFirst) {
+        } else if (redFirst) {
             if (greenDraw.isChecked) {
                 graph.addSeries(seriesz)
             }
@@ -228,7 +254,7 @@ class WelchFragment : Fragment() {
             if (redDraw.isChecked) {
                 graph.addSeries(seriesy)
             }
-        }else if(greenFirst) {
+        } else if (greenFirst) {
             if (redDraw.isChecked) {
                 graph.addSeries(seriesy)
             }
@@ -237,6 +263,39 @@ class WelchFragment : Fragment() {
             }
             if (greenDraw.isChecked) {
                 graph.addSeries(seriesz)
+            }
+        }
+    }
+    fun drawAllSelected(){
+        for(a in storedSelected){
+            var selectedX = PointsGraphSeries<DataPoint>()
+            var selectedY = PointsGraphSeries<DataPoint>()
+            var selectedZ = PointsGraphSeries<DataPoint>()
+            customShape(selectedX)
+            customShape(selectedY)
+            customShape(selectedZ)
+            selectedX.appendData(DataPoint(a.key, mapX.get(a.key)!!), false, 1)
+            selectedX.color = Color.BLUE
+
+            selectedY.appendData(DataPoint(a.key, mapY.get(a.key)!!), false, 1)
+            selectedY.color = Color.RED
+
+            selectedZ.appendData(DataPoint(a.key, mapZ.get(a.key)!!), false, 1)
+            selectedZ.color = Color.GREEN
+
+            graph.addSeries(selectedX)
+            graph.addSeries(selectedY)
+            graph.addSeries(selectedZ)
+        }
+    }
+    fun customShape(point:PointsGraphSeries<DataPoint>){
+        point.setCustomShape { canvas, paint, x, y, dataPoint ->
+            run {
+                paint.setStrokeWidth(5F)
+                canvas.drawLine(x - 20, y, x, y - 20, paint)
+                canvas.drawLine(x, y - 20, x + 20, y, paint)
+                canvas.drawLine(x + 20, y, x, y + 20, paint)
+                canvas.drawLine(x - 20, y, x, y + 20, paint)
             }
         }
     }
