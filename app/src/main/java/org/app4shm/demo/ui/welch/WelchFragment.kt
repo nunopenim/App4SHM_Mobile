@@ -40,6 +40,9 @@ var redFirst = false
 var blueFirst = true
 var greenFirst = false
 
+var maxClicks = 3
+var clicks = 0
+
 
 class WelchFragment : Fragment() {
 
@@ -59,6 +62,20 @@ class WelchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        readings = arrayListOf<DataPoints>()
+        seriesx = LineGraphSeries<DataPoint>()
+        seriesy = LineGraphSeries<DataPoint>()
+        seriesz = LineGraphSeries<DataPoint>()
+        selectBar = LineGraphSeries<DataPoint>()
+        storedSelected = mutableMapOf<Double, Double>()
+        mapX = mutableMapOf<Double, Double>()
+        mapY = mutableMapOf<Double, Double>()
+        mapZ = mutableMapOf<Double, Double>()
+
+        maxClicks = 3
+        clicks = 0
+
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
 
         val fab: View = root.findViewById(R.id.submit)
@@ -253,8 +270,10 @@ class WelchFragment : Fragment() {
             }
         }*/
         if (storedSelected.containsKey(dataPointInterface.x)) {
+            clicks--
             storedSelected.remove(dataPointInterface.x)
-        } else {
+        } else if(clicks < maxClicks){
+            clicks++
             storedSelected.put(dataPointInterface.x, dataPointInterface.y)
         }
 
