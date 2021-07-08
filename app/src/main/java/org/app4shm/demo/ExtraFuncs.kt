@@ -17,3 +17,13 @@ fun makeMeAJson(list: ArrayList<Data>) : String {
     str += "]"
     return str
 }
+
+fun makeMeAJsonPoints(list: ArrayList<DataPoints>) : String {
+    var str = "["
+    for (i in list) {
+        str += i.JSONer() + ","
+    }
+    str = str.dropLast(1)
+    str += "]"
+    return str
+}

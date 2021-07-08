@@ -13,9 +13,13 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.*
-import org.app4shm.demo.Data
-import org.app4shm.demo.InfoSingleton
-import org.app4shm.demo.R
+import okhttp3.Request
+import okhttp3.RequestBody
+import org.app4shm.demo.*
+import org.app4shm.demo.ui.home.JSON
+import org.app4shm.demo.ui.home.httpClient
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 
 
 // X é azul
@@ -23,21 +27,24 @@ import org.app4shm.demo.R
 // Z é verde
 //O que está a ser selecionado precisa de ser desenhado por cima dos outros gráficos todos ou seja adicionado ao GraphView em último
 lateinit var graph: GraphView
-var readings = arrayListOf<Data>()
+var readings = arrayListOf<DataPoints>()
 var seriesx = LineGraphSeries<DataPoint>()
 var seriesy = LineGraphSeries<DataPoint>()
 var seriesz = LineGraphSeries<DataPoint>()
 var selectBar = LineGraphSeries<DataPoint>()
 var storedSelected = mutableMapOf<Double, Double>()
-var mapX = mutableMapOf<Double,Double>()
-var mapY = mutableMapOf<Double,Double>()
-var mapZ = mutableMapOf<Double,Double>()
+var mapX = mutableMapOf<Double, Double>()
+var mapY = mutableMapOf<Double, Double>()
+var mapZ = mutableMapOf<Double, Double>()
 var redFirst = false
 var blueFirst = true
 var greenFirst = false
 
 
 class WelchFragment : Fragment() {
+
+    private var senderThread = Executors.newFixedThreadPool(2)
+    private var semaphoreSend: Semaphore = Semaphore(1)
 
     lateinit var redTap: RadioButton
     lateinit var blueTap: RadioButton
@@ -61,7 +68,15 @@ class WelchFragment : Fragment() {
             builder.setTitle("Title")
             builder.setMessage("Message")
             builder.setPositiveButton("Confirm",
-                DialogInterface.OnClickListener { dialog, which -> })
+                DialogInterface.OnClickListener { dialog, which ->
+                    if (readings.size != 0) {
+                        senderThread.execute {
+                            semaphoreSend.acquire()
+                            sendData()
+                            semaphoreSend.release()
+                        }
+                    }
+                })
             builder.setNegativeButton(android.R.string.cancel,
                 DialogInterface.OnClickListener { dialog, which -> })
 
@@ -138,9 +153,9 @@ class WelchFragment : Fragment() {
         graph.viewport.setMinY(0.0)
 
         for (i in InfoSingleton.welchF.indices) {
-            mapX.put(InfoSingleton.welchF.get(i),InfoSingleton.welchX.get(i))
-            mapY.put(InfoSingleton.welchF.get(i),InfoSingleton.welchY.get(i))
-            mapZ.put(InfoSingleton.welchF.get(i),InfoSingleton.welchZ.get(i))
+            mapX.put(InfoSingleton.welchF.get(i), InfoSingleton.welchX.get(i))
+            mapY.put(InfoSingleton.welchF.get(i), InfoSingleton.welchY.get(i))
+            mapZ.put(InfoSingleton.welchF.get(i), InfoSingleton.welchZ.get(i))
             seriesx.appendData(
                 DataPoint(InfoSingleton.welchF.get(i), InfoSingleton.welchX.get(i)),
                 true,
@@ -283,8 +298,10 @@ class WelchFragment : Fragment() {
             }
         }
     }
-    fun drawAllSelected(){
-        for(a in storedSelected){
+
+    fun drawAllSelected() {
+        readings = arrayListOf<DataPoints>()
+        for (a in storedSelected) {
             var selectedX = PointsGraphSeries<DataPoint>()
             var selectedY = PointsGraphSeries<DataPoint>()
             var selectedZ = PointsGraphSeries<DataPoint>()
@@ -300,12 +317,24 @@ class WelchFragment : Fragment() {
             selectedZ.appendData(DataPoint(a.key, mapZ.get(a.key)!!), false, 1)
             selectedZ.color = Color.GREEN
 
+            readings.add(
+                DataPoints(
+                    InfoSingleton.username,
+                    a.key,
+                    mapX.get(a.key)!!,
+                    mapY.get(a.key)!!,
+                    mapZ.get(a.key)!!,
+                    InfoSingleton.group
+                )
+            )
+
             graph.addSeries(selectedX)
             graph.addSeries(selectedY)
             graph.addSeries(selectedZ)
         }
     }
-    fun customShape(point:PointsGraphSeries<DataPoint>){
+
+    fun customShape(point: PointsGraphSeries<DataPoint>) {
         point.setCustomShape { canvas, paint, x, y, dataPoint ->
             run {
                 paint.setStrokeWidth(5F)
@@ -315,5 +344,14 @@ class WelchFragment : Fragment() {
                 canvas.drawLine(x - 20, y, x, y + 20, paint)
             }
         }
+    }
+
+    fun sendData() {
+        val jsonText = makeMeAJsonPoints(readings)
+        readings = arrayListOf<DataPoints>()
+        val body = RequestBody.create(JSON, jsonText)
+        val request: Request =
+            Request.Builder().url("http://${InfoSingleton.IP}/data/points").post(body).build()
+        httpClient.newCall(request).execute()
     }
 }
