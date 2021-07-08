@@ -1,5 +1,7 @@
 package org.app4shm.demo.ui.welch
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -51,6 +53,21 @@ class WelchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
+
+        val fab: View = root.findViewById(R.id.submit)
+        fab.setOnClickListener { view ->
+            val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+            builder.setCancelable(true)
+            builder.setTitle("Title")
+            builder.setMessage("Message")
+            builder.setPositiveButton("Confirm",
+                DialogInterface.OnClickListener { dialog, which -> })
+            builder.setNegativeButton(android.R.string.cancel,
+                DialogInterface.OnClickListener { dialog, which -> })
+
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
 
         redTap = root.findViewById(R.id.redTap)
         blueTap = root.findViewById(R.id.blueTap)
