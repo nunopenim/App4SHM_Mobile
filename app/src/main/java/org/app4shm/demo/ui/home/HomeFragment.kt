@@ -1,6 +1,8 @@
 package org.app4shm.demo.ui.home
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -14,10 +16,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import org.app4shm.demo.*
@@ -79,9 +86,23 @@ class HomeFragment : Fragment(), SensorEventListener {
         val jsonText = makeMeAJson(readings)
         readings = arrayListOf<Data>()
         val body = RequestBody.create(JSON, jsonText)
-        val request: Request = Request.Builder().url("http://${InfoSingleton.IP}/data/reading").post(body).build()
+        val request: Request = Request.Builder().url("${InfoSingleton.IP}/data/reading").post(body).build()
         InfoSingleton.response = httpClient.newCall(request).execute()
         InfoSingleton.processRecievedData()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+            builder.setCancelable(false)
+            builder.setTitle(getString(R.string.success))
+            builder.setMessage(getString(R.string.calculated))
+            builder.setPositiveButton(getString(R.string.Confirm),
+                DialogInterface.OnClickListener { dialog, which ->
+                    view?.let { Navigation.findNavController(it).navigate(R.id.navigation_welch) };
+                })
+
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
     }
 
     private lateinit var homeViewModel: HomeViewModel

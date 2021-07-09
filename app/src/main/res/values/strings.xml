@@ -18,6 +18,12 @@
     <string name="no_auto_time">Your device\'s Auto-time is currently off!</string>
     <string name="changes_saved">Saved!</string>
     <string name="sent_data">Sent Data!</string>
+    <string name="success">Success</string>
+    <string name="calculated">Calculated frequencies from captured data</string>
+    <string name="confirmed">Confirmed</string>
+    <string name="Confirm">Confirm</string>
+    <string name="you_are_about">you are about to send the selected frequencies to the server</string>
+    <string name="warning">Warning</string>
 
     <!-- Sync Preferences -->
     <string name="title_activity_settings">Settings</string>
@@ -29,5 +35,6 @@
     <string name="sending">Sending...</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="send">Send</string>
 
 </resources>

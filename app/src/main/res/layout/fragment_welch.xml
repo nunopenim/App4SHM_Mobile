@@ -9,6 +9,7 @@
     tools:context=".ui.welch.WelchFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:visibility="invisible"
         android:id="@+id/submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,6 +22,7 @@
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
     <LinearLayout
+        android:visibility="invisible"
         android:id="@+id/Linear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,6 +63,7 @@
     </LinearLayout>
 
     <RadioGroup
+        android:visibility="invisible"
         android:id="@+id/radioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -107,7 +110,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/send_frequencies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send"
 
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graph_welch"
+        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

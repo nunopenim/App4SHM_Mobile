@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.jjoe64.graphview.GraphView
@@ -49,6 +50,7 @@ class WelchFragment : Fragment() {
     private var senderThread = Executors.newFixedThreadPool(2)
     private var semaphoreSend: Semaphore = Semaphore(1)
 
+    lateinit var radioGroup: RadioGroup
     lateinit var redTap: RadioButton
     lateinit var blueTap: RadioButton
     lateinit var greenTap: RadioButton
@@ -78,13 +80,13 @@ class WelchFragment : Fragment() {
 
         val root = inflater.inflate(R.layout.fragment_welch, container, false)
 
-        val fab: View = root.findViewById(R.id.submit)
-        fab.setOnClickListener { view ->
+        val sendFrequencies: View = root.findViewById(R.id.send_frequencies)
+        sendFrequencies.setOnClickListener { view ->
             val builder: AlertDialog.Builder = AlertDialog.Builder(context)
             builder.setCancelable(true)
-            builder.setTitle("Title")
-            builder.setMessage("Message")
-            builder.setPositiveButton("Confirm",
+            builder.setTitle(getString(R.string.warning))
+            builder.setMessage(getString(R.string.you_are_about))
+            builder.setPositiveButton(getString(R.string.Confirm),
                 DialogInterface.OnClickListener { dialog, which ->
                     if (readings.size != 0) {
                         senderThread.execute {
@@ -101,9 +103,11 @@ class WelchFragment : Fragment() {
             dialog.show()
         }
 
+
         redTap = root.findViewById(R.id.redTap)
         blueTap = root.findViewById(R.id.blueTap)
         greenTap = root.findViewById(R.id.greenTap)
+        radioGroup = root.findViewById(R.id.radioGroup)
 
         redDraw = root.findViewById(R.id.redDraw)
         blueDraw = root.findViewById(R.id.blueDraw)
@@ -199,15 +203,25 @@ class WelchFragment : Fragment() {
 
         seriesy.color = Color.RED
         seriesz.color = Color.GREEN
-        graph.addSeries(seriesy)
+        //graph.addSeries(seriesy)
         graph.addSeries(seriesz)
-        graph.addSeries(seriesx)
+        //graph.addSeries(seriesx)
         graph.viewport.setScalable(true)
         graph.viewport.setScalableY(true)
         graph.viewport.isScrollable = true
         graph.viewport.isScalable = true
         graph.viewport.setScrollableY(true)
 
+        //TEMP
+        redFirst = false
+        blueFirst = false
+        greenFirst = true
+        graph.removeAllSeries()
+        reDraw()
+        seriesy.setOnDataPointTapListener(null);
+        seriesx.setOnDataPointTapListener(null);
+        seriesz.setOnDataPointTapListener { series, dataPoint -> onTapz(series, dataPoint) }
+        //TEMP
 
         return root
     }
@@ -285,6 +299,7 @@ class WelchFragment : Fragment() {
 
     fun reDraw() {
         drawAllSelected()
+        /*
         if (blueFirst) {
             if (redDraw.isChecked) {
                 graph.addSeries(seriesy)
@@ -315,7 +330,8 @@ class WelchFragment : Fragment() {
             if (greenDraw.isChecked) {
                 graph.addSeries(seriesz)
             }
-        }
+        }*/
+        graph.addSeries(seriesz)
     }
 
     fun drawAllSelected() {
@@ -347,8 +363,8 @@ class WelchFragment : Fragment() {
                 )
             )
 
-            graph.addSeries(selectedX)
-            graph.addSeries(selectedY)
+            //graph.addSeries(selectedX)
+            //graph.addSeries(selectedY)
             graph.addSeries(selectedZ)
         }
     }
@@ -370,7 +386,7 @@ class WelchFragment : Fragment() {
         readings = arrayListOf<DataPoints>()
         val body = RequestBody.create(JSON, jsonText)
         val request: Request =
-            Request.Builder().url("http://${InfoSingleton.IP}/data/points").post(body).build()
+            Request.Builder().url("${InfoSingleton.IP}/data/points").post(body).build()
         httpClient.newCall(request).execute()
     }
 }
