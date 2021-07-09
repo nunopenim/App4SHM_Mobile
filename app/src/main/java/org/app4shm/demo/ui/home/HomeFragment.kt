@@ -40,7 +40,7 @@ import java.util.concurrent.Semaphore
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 //var httpClient: OkHttpClient = OkHttpClient() //local
-var httpClient: OkHttpClient = OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS)).build()
+var httpClient: OkHttpClient = OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT, ConnectionSpec.COMPATIBLE_TLS)).build()
 
 //leituras
 var isReading = false
