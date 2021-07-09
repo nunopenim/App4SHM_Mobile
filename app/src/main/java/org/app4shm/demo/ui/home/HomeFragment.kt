@@ -18,12 +18,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import okhttp3.MediaType
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
 import org.app4shm.demo.*
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 
@@ -41,7 +39,8 @@ import java.util.concurrent.Semaphore
 
 //Server shtuff
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
-var httpClient: OkHttpClient = OkHttpClient()
+//var httpClient: OkHttpClient = OkHttpClient() //local
+var httpClient: OkHttpClient = OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS)).build()
 
 //leituras
 var isReading = false
